@@ -78,20 +78,90 @@ export const liabilityService = {
     }
   },
 
-  async createLiability(payload: LiabilityCreateInput): Promise<Liability> {
+  async createLiability(payload: LiabilityCreateInput, files?: File[]): Promise<Liability> {
     try {
-      const response = await apiClient.post<ApiResponse<LiabilityResponse>>(API_ENDPOINTS.LIABILITIES, payload);
-      return transformLiability(response.data.liability);
+      // Transform documents from objects to string[] if needed
+      const transformedPayload = {
+        ...payload,
+        documents: payload.documents 
+          ? payload.documents.map((doc) => typeof doc === 'string' ? doc : doc.url)
+          : undefined,
+      };
+
+      // If files are provided, send as multipart/form-data
+      if (files && files.length > 0) {
+        const formData = new FormData();
+        
+        // Add payload as JSON string
+        formData.append('payload', JSON.stringify(transformedPayload));
+        
+        // Add files
+        files.forEach((file) => {
+          formData.append('files', file);
+        });
+
+        const axiosInstance = apiClient.getAxiosInstance();
+        const response = await axiosInstance.post<ApiResponse<LiabilityResponse>>(
+          API_ENDPOINTS.LIABILITIES,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        
+        return transformLiability(response.data.data.liability);
+      } else {
+        // No files, send as JSON (backward compatible)
+        const response = await apiClient.post<ApiResponse<LiabilityResponse>>(API_ENDPOINTS.LIABILITIES, transformedPayload);
+        return transformLiability(response.data.liability);
+      }
     } catch (error) {
       console.error('Error creating liability:', error);
       throw error;
     }
   },
 
-  async updateLiability(id: string, payload: LiabilityUpdateInput): Promise<Liability> {
+  async updateLiability(id: string, payload: LiabilityUpdateInput, files?: File[]): Promise<Liability> {
     try {
-      const response = await apiClient.put<ApiResponse<LiabilityResponse>>(API_ENDPOINTS.LIABILITY_BY_ID(id), payload);
-      return transformLiability(response.data.liability);
+      // Transform documents from objects to string[] if needed
+      const transformedPayload = {
+        ...payload,
+        documents: payload.documents 
+          ? payload.documents.map((doc) => typeof doc === 'string' ? doc : doc.url)
+          : undefined,
+      };
+
+      // If files are provided, send as multipart/form-data
+      if (files && files.length > 0) {
+        const formData = new FormData();
+        
+        // Add payload as JSON string
+        formData.append('payload', JSON.stringify(transformedPayload));
+        
+        // Add files
+        files.forEach((file) => {
+          formData.append('files', file);
+        });
+
+        const axiosInstance = apiClient.getAxiosInstance();
+        const response = await axiosInstance.put<ApiResponse<LiabilityResponse>>(
+          API_ENDPOINTS.LIABILITY_BY_ID(id),
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        
+        return transformLiability(response.data.data.liability);
+      } else {
+        // No files, send as JSON (backward compatible)
+        const response = await apiClient.put<ApiResponse<LiabilityResponse>>(API_ENDPOINTS.LIABILITY_BY_ID(id), transformedPayload);
+        return transformLiability(response.data.liability);
+      }
     } catch (error) {
       console.error('Error updating liability:', error);
       throw error;
@@ -116,6 +186,17 @@ export const liabilityService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching liability summary:', error);
+      throw error;
+    }
+  },
+
+  async deleteDocument(liabilityId: string, documentUrl: string): Promise<void> {
+    try {
+      await apiClient.delete(API_ENDPOINTS.LIABILITY_DELETE_DOCUMENT, {
+        data: { liabilityId, documentUrl },
+      });
+    } catch (error) {
+      console.error('Error deleting document:', error);
       throw error;
     }
   },

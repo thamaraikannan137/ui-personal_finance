@@ -78,20 +78,90 @@ export const assetService = {
     }
   },
 
-  async createAsset(payload: AssetCreateInput): Promise<Asset> {
+  async createAsset(payload: AssetCreateInput, files?: File[]): Promise<Asset> {
     try {
-      const response = await apiClient.post<ApiResponse<AssetResponse>>(API_ENDPOINTS.ASSETS, payload);
-      return transformAsset(response.data.asset);
+      // Transform documents from objects to string[] if needed
+      const transformedPayload = {
+        ...payload,
+        documents: payload.documents 
+          ? payload.documents.map((doc) => typeof doc === 'string' ? doc : doc.url)
+          : undefined,
+      };
+
+      // If files are provided, send as multipart/form-data
+      if (files && files.length > 0) {
+        const formData = new FormData();
+        
+        // Add payload as JSON string
+        formData.append('payload', JSON.stringify(transformedPayload));
+        
+        // Add files
+        files.forEach((file) => {
+          formData.append('files', file);
+        });
+
+        const axiosInstance = apiClient.getAxiosInstance();
+        const response = await axiosInstance.post<ApiResponse<AssetResponse>>(
+          API_ENDPOINTS.ASSETS,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        
+        return transformAsset(response.data.data.asset);
+      } else {
+        // No files, send as JSON (backward compatible)
+        const response = await apiClient.post<ApiResponse<AssetResponse>>(API_ENDPOINTS.ASSETS, transformedPayload);
+        return transformAsset(response.data.asset);
+      }
     } catch (error) {
       console.error('Error creating asset:', error);
       throw error;
     }
   },
 
-  async updateAsset(id: string, payload: AssetUpdateInput): Promise<Asset> {
+  async updateAsset(id: string, payload: AssetUpdateInput, files?: File[]): Promise<Asset> {
     try {
-      const response = await apiClient.put<ApiResponse<AssetResponse>>(API_ENDPOINTS.ASSET_BY_ID(id), payload);
-      return transformAsset(response.data.asset);
+      // Transform documents from objects to string[] if needed
+      const transformedPayload = {
+        ...payload,
+        documents: payload.documents 
+          ? payload.documents.map((doc) => typeof doc === 'string' ? doc : doc.url)
+          : undefined,
+      };
+
+      // If files are provided, send as multipart/form-data
+      if (files && files.length > 0) {
+        const formData = new FormData();
+        
+        // Add payload as JSON string
+        formData.append('payload', JSON.stringify(transformedPayload));
+        
+        // Add files
+        files.forEach((file) => {
+          formData.append('files', file);
+        });
+
+        const axiosInstance = apiClient.getAxiosInstance();
+        const response = await axiosInstance.put<ApiResponse<AssetResponse>>(
+          API_ENDPOINTS.ASSET_BY_ID(id),
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        
+        return transformAsset(response.data.data.asset);
+      } else {
+        // No files, send as JSON (backward compatible)
+        const response = await apiClient.put<ApiResponse<AssetResponse>>(API_ENDPOINTS.ASSET_BY_ID(id), transformedPayload);
+        return transformAsset(response.data.asset);
+      }
     } catch (error) {
       console.error('Error updating asset:', error);
       throw error;
@@ -116,6 +186,17 @@ export const assetService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching asset summary:', error);
+      throw error;
+    }
+  },
+
+  async deleteDocument(assetId: string, documentUrl: string): Promise<void> {
+    try {
+      await apiClient.delete(API_ENDPOINTS.ASSET_DELETE_DOCUMENT, {
+        data: { assetId, documentUrl },
+      });
+    } catch (error) {
+      console.error('Error deleting document:', error);
       throw error;
     }
   },

@@ -29,16 +29,16 @@ export const fetchLiabilityById = createAsyncThunk('liabilities/fetchLiabilityBy
 
 export const createLiability = createAsyncThunk(
   'liabilities/createLiability',
-  async (payload: LiabilityCreateInput) => {
-    const liability = await liabilityService.createLiability(payload);
+  async ({ payload, files }: { payload: LiabilityCreateInput; files?: File[] }) => {
+    const liability = await liabilityService.createLiability(payload, files);
     return liability;
   }
 );
 
 export const updateLiability = createAsyncThunk(
   'liabilities/updateLiability',
-  async ({ id, changes }: { id: string; changes: LiabilityUpdateInput }) => {
-    const liability = await liabilityService.updateLiability(id, changes);
+  async ({ id, changes, files }: { id: string; changes: LiabilityUpdateInput; files?: File[] }) => {
+    const liability = await liabilityService.updateLiability(id, changes, files);
     return liability;
   }
 );

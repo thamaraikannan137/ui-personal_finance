@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { MainLayout } from "../components/layout";
 import { useAuth } from "../contexts/AuthContext";
-import { HomePage } from "../pages/HomePage";
+import { DashboardPage } from "../pages/DashboardPage";
 
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
@@ -22,7 +22,7 @@ const authRoutes = [
 
 // Protected routes - require authentication
 const protectedRoutes = [
-  { path: "/dashboard", element: <HomePage /> },
+  { path: "/dashboard", element: <DashboardPage /> },
   { path: "/assets", element: <AssetsPage /> },
   { path: "/assets/:id", element: <AssetDetailPage /> },
   { path: "/liabilities", element: <LiabilitiesPage /> },

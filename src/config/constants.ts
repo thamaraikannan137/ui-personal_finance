@@ -35,11 +35,13 @@ export const API_ENDPOINTS = {
   ASSETS: '/assets',
   ASSET_BY_ID: (id: string) => `/assets/${id}`,
   ASSET_SUMMARY: '/assets/summary',
+  ASSET_DELETE_DOCUMENT: '/assets/documents',
   
   // Liability Endpoints
   LIABILITIES: '/liabilities',
   LIABILITY_BY_ID: (id: string) => `/liabilities/${id}`,
   LIABILITY_SUMMARY: '/liabilities/summary',
+  LIABILITY_DELETE_DOCUMENT: '/liabilities/documents',
   
   // Custom Category Endpoints
   CUSTOM_CATEGORIES: '/custom-categories',

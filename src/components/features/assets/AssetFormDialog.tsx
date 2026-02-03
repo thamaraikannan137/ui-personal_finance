@@ -13,7 +13,7 @@ import {
 import type { Asset, AssetCreateInput, AssetCategory, CustomFieldDefinition, CustomCategoryTemplate } from '../../../types';
 import { Button, CustomFieldsRenderer } from '../../common';
 import { customCategoryService } from '../../../services/customCategoryService';
-import { DefaultAssetForm } from './DefaultAssetForm';
+import { AssetFormFields } from './AssetFormFields';
 import { assetCategoryOptions, assetCategoryLabels } from '../../../config/categoryConfig';
 
 type AssetFormValues = AssetCreateInput;
@@ -21,7 +21,7 @@ type AssetFormValues = AssetCreateInput;
 interface AssetFormDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: AssetCreateInput) => void;
+  onSubmit: (values: AssetCreateInput, files?: File[]) => void;
   initialAsset?: Asset | null;
 }
 
@@ -39,6 +39,7 @@ export const AssetFormDialog = ({ open, onClose, onSubmit, initialAsset }: Asset
   const [formValues, setFormValues] = useState<AssetFormValues>(defaultValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [documents, setDocuments] = useState<Array<{ id: string; name: string; url: string; type: string; uploadedAt: string }>>([]);
+  const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
   const [customFields, setCustomFields] = useState<CustomFieldDefinition[]>([]);
   
   // Custom category state
@@ -77,11 +78,42 @@ export const AssetFormDialog = ({ open, onClose, onSubmit, initialAsset }: Asset
         ...defaultValues,
         ...rest,
       });
-      setDocuments(initialAsset.documents || []);
+      
+      // Transform documents: if they're strings (URLs), convert to document objects
+      const transformedDocuments = (initialAsset.documents || []).map((doc, index) => {
+        if (typeof doc === 'string') {
+          // It's a URL string, create a document object
+          const url = doc;
+          const fileName = url.split('/').pop() || `Document ${index + 1}`;
+          const extension = fileName.split('.').pop()?.toLowerCase() || '';
+          
+          // Infer MIME type from extension
+          let mimeType = 'application/octet-stream';
+          if (extension === 'pdf') mimeType = 'application/pdf';
+          else if (['jpg', 'jpeg'].includes(extension)) mimeType = 'image/jpeg';
+          else if (extension === 'png') mimeType = 'image/png';
+          else if (extension === 'gif') mimeType = 'image/gif';
+          else if (extension === 'doc') mimeType = 'application/msword';
+          else if (extension === 'docx') mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+          
+          return {
+            id: `doc-${index}-${Date.now()}`,
+            name: fileName,
+            url: doc,
+            type: mimeType,
+            uploadedAt: initialAsset.updatedAt || initialAsset.createdAt || new Date().toISOString(),
+          };
+        }
+        // Already an object, return as-is
+        return doc;
+      });
+      
+      setDocuments(transformedDocuments);
       setCustomFields(initialAsset.customFields || []);
     } else {
       setFormValues(defaultValues);
       setDocuments([]);
+      setUploadingFiles([]);
       setCustomFields([]);
       setSelectedCustomCategoryId('');
     }
@@ -160,19 +192,22 @@ export const AssetFormDialog = ({ open, onClose, onSubmit, initialAsset }: Asset
     const files = event.target.files;
     if (!files) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const newDoc = {
-          id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          name: file.name,
-          url: e.target?.result as string,
-          type: file.type,
-          uploadedAt: new Date().toISOString(),
-        };
-        setDocuments((prev) => [...prev, newDoc]);
+    const fileArray = Array.from(files);
+    
+    // Store File objects for later upload
+    setUploadingFiles((prev) => [...prev, ...fileArray]);
+    
+    // Create preview documents for UI using blob URLs
+    fileArray.forEach((file) => {
+      const blobUrl = URL.createObjectURL(file);
+      const newDoc = {
+        id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name: file.name,
+        url: blobUrl,
+        type: file.type,
+        uploadedAt: new Date().toISOString(),
       };
-      reader.readAsDataURL(file);
+      setDocuments((prev) => [...prev, newDoc]);
     });
 
     // Reset input
@@ -180,6 +215,27 @@ export const AssetFormDialog = ({ open, onClose, onSubmit, initialAsset }: Asset
   };
 
   const handleRemoveDocument = (docId: string) => {
+    // Find the document to remove
+    const docToRemove = documents.find((doc) => doc.id === docId);
+    
+    // If it's a blob URL (preview), revoke it and remove from uploadingFiles
+    if (docToRemove && docToRemove.url.startsWith('blob:')) {
+      URL.revokeObjectURL(docToRemove.url);
+      
+      // Find the corresponding file index and remove it
+      const docIndex = documents.findIndex((doc) => doc.id === docId);
+      if (docIndex !== -1) {
+        setUploadingFiles((prev) => {
+          const newFiles = [...prev];
+          // Calculate which file to remove based on how many blob URLs come before this one
+          const blobUrlsBefore = documents.slice(0, docIndex).filter(d => d.url.startsWith('blob:')).length;
+          newFiles.splice(blobUrlsBefore, 1);
+          return newFiles;
+        });
+      }
+    }
+    
+    // Remove from documents
     setDocuments((prev) => prev.filter((doc) => doc.id !== docId));
   };
 
@@ -205,13 +261,31 @@ export const AssetFormDialog = ({ open, onClose, onSubmit, initialAsset }: Asset
       ? customCategoryTemplates.find(t => t.id === selectedCustomCategoryId)?.name 
       : (formValues.category === 'custom' ? (formValues.customCategoryName ?? initialAsset?.customCategoryName) : undefined);
 
-    onSubmit({
+    // Filter out blob URLs (previews) and keep only existing S3 URLs
+    // These will be sent as string[] to backend, which will handle S3 deletion for removed ones
+    const existingDocumentUrls = documents
+      .filter((doc) => !doc.url.startsWith('blob:'))
+      .map((doc) => doc.url);
+
+    const payload: AssetCreateInput = {
       ...formValues,
       value: Number(formValues.value),
-      documents: documents.length > 0 ? documents : undefined,
+      // Send as array of objects for frontend type, but assetService will convert to string[] for backend
+      documents: existingDocumentUrls.length > 0 
+        ? existingDocumentUrls.map((url, index) => ({
+            id: `doc-${Date.now()}-${index}`,
+            name: documents.find(d => d.url === url)?.name || `Document ${index + 1}`,
+            url,
+            type: documents.find(d => d.url === url)?.type || 'application/pdf',
+            uploadedAt: new Date().toISOString(),
+          }))
+        : undefined,
       customFields: formValues.category === 'custom' && customFields.length > 0 ? customFields : undefined,
       customCategoryName: customCategoryName,
-    });
+    };
+
+    // Pass payload and files to onSubmit
+    onSubmit(payload, uploadingFiles.length > 0 ? uploadingFiles : undefined);
   };
 
   return (
@@ -247,7 +321,7 @@ export const AssetFormDialog = ({ open, onClose, onSubmit, initialAsset }: Asset
               ))
             ]}
           </TextField>
-          <DefaultAssetForm
+          <AssetFormFields
             category={formValues.category}
             formValues={formValues}
             errors={errors}

@@ -27,15 +27,18 @@ export const fetchAssetById = createAsyncThunk('assets/fetchAssetById', async (a
   return asset ?? null;
 });
 
-export const createAsset = createAsyncThunk('assets/createAsset', async (payload: AssetCreateInput) => {
-  const asset = await assetService.createAsset(payload);
-  return asset;
-});
+export const createAsset = createAsyncThunk(
+  'assets/createAsset',
+  async ({ payload, files }: { payload: AssetCreateInput; files?: File[] }) => {
+    const asset = await assetService.createAsset(payload, files);
+    return asset;
+  }
+);
 
 export const updateAsset = createAsyncThunk(
   'assets/updateAsset',
-  async ({ id, changes }: { id: string; changes: AssetUpdateInput }) => {
-    const asset = await assetService.updateAsset(id, changes);
+  async ({ id, changes, files }: { id: string; changes: AssetUpdateInput; files?: File[] }) => {
+    const asset = await assetService.updateAsset(id, changes, files);
     return asset;
   }
 );

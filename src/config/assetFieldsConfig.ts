@@ -45,14 +45,6 @@ export const assetFieldsConfig: Record<AssetCategory, AssetFieldDefinition[]> = 
       helperText: 'Survey number, dimensions, or other details',
       minRows: 3,
     },
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to property documents or deeds',
-    },
   ],
 
   // Property - Real estate tracking
@@ -91,27 +83,10 @@ export const assetFieldsConfig: Record<AssetCategory, AssetFieldDefinition[]> = 
       helperText: 'Property type, size, features, etc.',
       minRows: 3,
     },
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to property documents',
-    },
   ],
 
   // Gold - Physical gold tracking
-  gold: [
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to purchase receipts or certificates',
-    },
-  ],
+  gold: [],
 
   // Gold Scheme - Monthly investment schemes
   gold_scheme: [
@@ -156,14 +131,6 @@ export const assetFieldsConfig: Record<AssetCategory, AssetFieldDefinition[]> = 
       helperText: 'Monthly installment amount',
       min: 0,
       step: 0.01,
-    },
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to scheme documents',
     },
   ],
 
@@ -213,14 +180,6 @@ export const assetFieldsConfig: Record<AssetCategory, AssetFieldDefinition[]> = 
       helperText: 'Name and contact of the borrower',
       minRows: 2,
     },
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to loan agreement or promissory note',
-    },
   ],
 
   // Savings Account - Bank savings
@@ -240,14 +199,6 @@ export const assetFieldsConfig: Record<AssetCategory, AssetFieldDefinition[]> = 
       placeholder: 'Enter account number',
       required: false,
       helperText: 'Bank account number',
-    },
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to bank statements',
     },
   ],
 
@@ -304,14 +255,6 @@ export const assetFieldsConfig: Record<AssetCategory, AssetFieldDefinition[]> = 
       max: 100,
       step: 0.1,
     },
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to FD certificate',
-    },
   ],
 
   // Investment - Stocks, mutual funds, etc.
@@ -353,14 +296,6 @@ export const assetFieldsConfig: Record<AssetCategory, AssetFieldDefinition[]> = 
       max: 100,
       step: 0.1,
     },
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to investment statements',
-    },
   ],
 
   // Retirement - Retirement accounts
@@ -381,27 +316,10 @@ export const assetFieldsConfig: Record<AssetCategory, AssetFieldDefinition[]> = 
       required: false,
       helperText: 'Retirement account number',
     },
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to statements',
-    },
   ],
 
   // Other - Miscellaneous assets
-  other: [
-    {
-      fieldName: 'documentURL',
-      type: 'url',
-      label: 'Document URL',
-      placeholder: 'https://',
-      required: false,
-      helperText: 'Link to related documents',
-    },
-  ],
+  other: [],
 
   // Custom - User-defined categories (uses custom fields instead)
   custom: [],

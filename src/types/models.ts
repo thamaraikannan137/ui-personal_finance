@@ -119,7 +119,6 @@ export interface Asset {
   monthlyPayment?: number; // For monthly investment schemes
   
   // Document management
-  documentURL?: string; // Link to deed, contract, receipt, certificate
   documents?: Array<{
     id: string;
     name: string;
@@ -166,6 +165,15 @@ export interface Liability {
   owner: string;
   updatedAt: string;
   notes?: string;
+  
+  // Document management
+  documents?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    type: string;
+    uploadedAt: string;
+  }>;
   
   // Custom fields (for Custom category liabilities)
   customFields?: CustomFieldDefinition[];

@@ -28,7 +28,7 @@ import type { Asset, AssetCreateInput, AssetUpdateInput, AssetCategory } from '.
 import type { Liability, LiabilityCreateInput, LiabilityUpdateInput, LiabilityCategory } from '../types';
 import { getAssetCategoryLabel, getLiabilityCategoryLabel } from '../config/categoryConfig';
 
-export const HomePage = () => {
+export const DashboardPage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   
@@ -97,11 +97,11 @@ export const HomePage = () => {
     setAssetDialogOpen(true);
   };
 
-  const handleAssetSubmit = async (values: AssetCreateInput) => {
+  const handleAssetSubmit = async (values: AssetCreateInput, files?: File[]) => {
     if (editingAsset) {
-      await dispatch(updateAsset({ id: editingAsset.id, changes: values as AssetUpdateInput }));
+      await dispatch(updateAsset({ id: editingAsset.id, changes: values as AssetUpdateInput, files }));
     } else {
-      await dispatch(createAsset(values));
+      await dispatch(createAsset({ payload: values, files }));
     }
     setAssetDialogOpen(false);
     setEditingAsset(null);
@@ -114,11 +114,11 @@ export const HomePage = () => {
     setLiabilityDialogOpen(true);
   };
 
-  const handleLiabilitySubmit = async (values: LiabilityCreateInput) => {
+  const handleLiabilitySubmit = async (values: LiabilityCreateInput, files?: File[]) => {
     if (editingLiability) {
-      await dispatch(updateLiability({ id: editingLiability.id, changes: values as LiabilityUpdateInput }));
+      await dispatch(updateLiability({ id: editingLiability.id, changes: values as LiabilityUpdateInput, files }));
     } else {
-      await dispatch(createLiability(values));
+      await dispatch(createLiability({ payload: values, files }));
     }
     setLiabilityDialogOpen(false);
     setEditingLiability(null);
@@ -668,4 +668,4 @@ export const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default DashboardPage;

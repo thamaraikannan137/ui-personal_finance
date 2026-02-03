@@ -91,11 +91,11 @@ export const AssetsPage = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleAssetSubmit = async (values: AssetCreateInput) => {
+  const handleAssetSubmit = async (values: AssetCreateInput, files?: File[]) => {
     if (editingAsset) {
-      await dispatch(updateAsset({ id: editingAsset.id, changes: values as AssetUpdateInput }));
+      await dispatch(updateAsset({ id: editingAsset.id, changes: values as AssetUpdateInput, files }));
     } else {
-      await dispatch(createAsset(values));
+      await dispatch(createAsset({ payload: values, files }));
     }
     setAssetDialogOpen(false);
     setEditingAsset(null);

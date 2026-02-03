@@ -86,11 +86,11 @@ export const LiabilitiesPage = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleLiabilitySubmit = async (values: LiabilityCreateInput) => {
+  const handleLiabilitySubmit = async (values: LiabilityCreateInput, files?: File[]) => {
     if (editingLiability) {
-      await dispatch(updateLiability({ id: editingLiability.id, changes: values as LiabilityUpdateInput }));
+      await dispatch(updateLiability({ id: editingLiability.id, changes: values as LiabilityUpdateInput, files }));
     } else {
-      await dispatch(createLiability(values));
+      await dispatch(createLiability({ payload: values, files }));
     }
     setLiabilityDialogOpen(false);
     setEditingLiability(null);

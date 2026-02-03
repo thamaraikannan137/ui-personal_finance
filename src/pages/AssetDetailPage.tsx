@@ -7,6 +7,9 @@ import {
   Chip,
   Divider,
   alpha,
+  Link,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { MuiCard, Button } from '../components/common';
 import { formatCurrency, formatDate } from '../utils';
@@ -170,6 +173,88 @@ export const AssetDetailPage = () => {
                   value={field.value?.toString()} 
                 />
               ))}
+            </>
+          )}
+
+          {/* Documents */}
+          {selectedAsset.documents && selectedAsset.documents.length > 0 && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="body2" color="text.secondary" fontWeight={600} gutterBottom>
+                Documents
+              </Typography>
+              <Stack spacing={1}>
+                {selectedAsset.documents.map((doc, index) => {
+                  // Handle both string URLs and document objects
+                  const docUrl = typeof doc === 'string' ? doc : doc.url;
+                  const docName = typeof doc === 'string' 
+                    ? docUrl.split('/').pop() || `Document ${index + 1}`
+                    : doc.name || docUrl.split('/').pop() || `Document ${index + 1}`;
+                  const extension = docUrl.split('.').pop()?.toLowerCase() || '';
+                  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension);
+                  
+                  return (
+                    <Box
+                      key={typeof doc === 'string' ? index : doc.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        p: 1.5,
+                        borderRadius: 1,
+                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.05),
+                        border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1 }}>
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 1,
+                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                          }}
+                        >
+                          {isImage ? (
+                            <i className="ri-image-line" style={{ fontSize: 20, color: '#1976d2' }} />
+                          ) : extension === 'pdf' ? (
+                            <i className="ri-file-pdf-line" style={{ fontSize: 20, color: '#d32f2f' }} />
+                          ) : ['doc', 'docx'].includes(extension) ? (
+                            <i className="ri-file-word-line" style={{ fontSize: 20, color: '#1976d2' }} />
+                          ) : (
+                            <i className="ri-file-line" style={{ fontSize: 20, color: '#666' }} />
+                          )}
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography variant="body2" fontWeight={500} noWrap>
+                            {docName}
+                          </Typography>
+                          {typeof doc === 'object' && doc.uploadedAt && (
+                            <Typography variant="caption" color="text.secondary">
+                              {formatDate(doc.uploadedAt)}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                      <Tooltip title="Open in new tab">
+                        <IconButton
+                          size="small"
+                          component="a"
+                          href={docUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{ ml: 1 }}
+                        >
+                          <i className="ri-external-link-line" style={{ fontSize: 18 }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  );
+                })}
+              </Stack>
             </>
           )}
         </Stack>

@@ -5,8 +5,9 @@ import {
   IconButton,
 } from '@mui/material';
 import { Button } from '../../common';
-import type { AssetCreateInput, AssetCategory } from '../../../types';
+import type { AssetCategory, AssetCreateInput } from '../../../types';
 import { getFieldsForCategory } from '../../../config/assetFieldsConfig';
+import { getAssetFormStructure } from '../../../config/assetFormConfig';
 import { DynamicFieldRenderer } from './DynamicFieldRenderer';
 
 interface Document {
@@ -17,60 +18,93 @@ interface Document {
   uploadedAt: string;
 }
 
-interface AssetDynamicFieldsProps {
+interface AssetFormFieldsProps {
   category: AssetCategory;
   formValues: AssetCreateInput;
+  errors: Record<string, string>;
   onChange: (fieldName: string, value: string | number | undefined) => void;
   documents: Document[];
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleRemoveDocument: (docId: string) => void;
 }
 
-export const AssetDynamicFields = ({
+/**
+ * Unified form component that renders all asset fields
+ * Combines top fields, category-specific fields, value field, and bottom fields
+ */
+export const AssetFormFields = ({
   category,
   formValues,
+  errors,
   onChange,
   documents,
   handleFileUpload,
   handleRemoveDocument,
-}: AssetDynamicFieldsProps) => {
+}: AssetFormFieldsProps) => {
   
-  // Get field definitions for the current category
-  const fields = getFieldsForCategory(category);
+  // Get category-specific fields (skip for custom categories - they use CustomFieldsRenderer)
+  const categoryFields = category === 'custom' ? [] : getFieldsForCategory(category);
   
-  const getFileIcon = (type: string) => {
-    if (type.includes('pdf')) return 'ri-file-pdf-line';
-    if (type.includes('image')) return 'ri-image-line';
-    if (type.includes('word') || type.includes('document')) return 'ri-file-word-line';
+  // Get complete form structure
+  const formStructure = getAssetFormStructure(categoryFields);
+
+  const getFieldValue = (fieldName: string) => {
+    return (formValues as Record<string, unknown>)[fieldName];
+  };
+
+  const getFieldError = (fieldName: string) => {
+    return errors[fieldName];
+  };
+
+  const getFileIcon = (type: string | undefined, url?: string) => {
+    // If type is not provided, try to infer from URL extension
+    if (!type && url) {
+      const extension = url.split('.').pop()?.toLowerCase();
+      if (!extension) return 'ri-file-line';
+      if (extension === 'pdf') return 'ri-file-pdf-line';
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) return 'ri-image-line';
+      if (['doc', 'docx'].includes(extension)) return 'ri-file-word-line';
+      return 'ri-file-line';
+    }
+    
+    // Use type if available
+    if (type) {
+      if (type.includes('pdf')) return 'ri-file-pdf-line';
+      if (type.includes('image')) return 'ri-image-line';
+      if (type.includes('word') || type.includes('document')) return 'ri-file-word-line';
+    }
+    
     return 'ri-file-line';
   };
 
-  // Check if category has documentURL field
-  const hasDocumentField = fields.some(f => f.fieldName === 'documentURL');
-
   return (
-    <>
-      {/* Render all dynamic fields based on category configuration */}
-      {fields
-        .filter(field => field.fieldName !== 'documentURL') // Handle documentURL separately
-        .map((field) => (
-          <DynamicFieldRenderer
-            key={field.fieldName}
-            field={field}
-            value={(formValues as Record<string, unknown>)[field.fieldName]}
-            onChange={onChange}
-          />
-        ))}
+    <Stack spacing={2}>
+      {/* Top Fields (Name, etc.) */}
+      {formStructure.topFields.map((field) => (
+        <DynamicFieldRenderer
+          key={field.fieldName}
+          field={field}
+          value={getFieldValue(field.fieldName)}
+          onChange={onChange}
+          error={getFieldError(field.fieldName)}
+        />
+      ))}
 
-      {/* Document Upload Section - Special handling */}
-      {hasDocumentField && (
+      {/* Category-Specific Dynamic Fields - Skip for custom categories */}
+      {category !== 'custom' && (
         <>
-          <DynamicFieldRenderer
-            field={fields.find(f => f.fieldName === 'documentURL')!}
-            value={formValues.documentURL}
-            onChange={onChange}
-          />
-          
+          {/* Render all dynamic fields based on category configuration */}
+          {categoryFields.map((field) => (
+            <DynamicFieldRenderer
+              key={field.fieldName}
+              field={field}
+              value={getFieldValue(field.fieldName)}
+              onChange={onChange}
+              error={getFieldError(field.fieldName)}
+            />
+          ))}
+
+          {/* Document Upload Section */}
           <Box>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
               Upload Documents
@@ -116,13 +150,13 @@ export const AssetDynamicFields = ({
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                      <i className={getFileIcon(doc.type)} style={{ fontSize: '24px', color: '#2196f3' }} />
+                      <i className={getFileIcon(doc.type, doc.url)} style={{ fontSize: '24px', color: '#2196f3' }} />
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Typography variant="body2" noWrap>
                           {doc.name}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {new Date(doc.uploadedAt).toLocaleDateString()}
+                          {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : 'Unknown date'}
                         </Typography>
                       </Box>
                     </Box>
@@ -149,8 +183,27 @@ export const AssetDynamicFields = ({
           )}
         </>
       )}
-    </>
+
+      {/* Value Field */}
+      <DynamicFieldRenderer
+        field={formStructure.valueField}
+        value={getFieldValue(formStructure.valueField.fieldName)}
+        onChange={onChange}
+        error={getFieldError(formStructure.valueField.fieldName)}
+      />
+
+      {/* Bottom Fields (Owner, Notes) */}
+      {formStructure.bottomFields.map((field) => (
+        <DynamicFieldRenderer
+          key={field.fieldName}
+          field={field}
+          value={getFieldValue(field.fieldName)}
+          onChange={onChange}
+          error={getFieldError(field.fieldName)}
+        />
+      ))}
+    </Stack>
   );
 };
 
-export default AssetDynamicFields;
+export default AssetFormFields;

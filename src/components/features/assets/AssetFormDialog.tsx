@@ -84,7 +84,7 @@ export const AssetFormDialog = ({ open, onClose, onSubmit, initialAsset }: Asset
         if (typeof doc === 'string') {
           // It's a URL string, create a document object
           const url = doc;
-          const fileName = url.split('/').pop() || `Document ${index + 1}`;
+          const fileName = (url as string).split('/').pop() || `Document ${index + 1}`;
           const extension = fileName.split('.').pop()?.toLowerCase() || '';
           
           // Infer MIME type from extension

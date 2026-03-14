@@ -14,24 +14,9 @@ export const navigationItems: NavItemType[] = [
     icon: "Dashboard",
   },
   {
-    title: "Assets",
-    path: "/assets",
-    icon: "Savings",
-  },
-  {
-    title: "Liabilities",
-    path: "/liabilities",
-    icon: "AccountBalance",
-  },
-  {
-    title: "Custom Categories",
-    path: "/custom-categories",
-    icon: "Category",
-  },
-  {
-    title: "Settings",
-    path: "/settings",
-    icon: "Settings",
+    title: "Clients",
+    path: "/clients",
+    icon: "PeopleAlt",
   },
 ];
 

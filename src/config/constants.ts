@@ -44,5 +44,38 @@ export const API_ENDPOINTS = {
   // Custom Category Endpoints
   CUSTOM_CATEGORIES: '/custom-categories',
   CUSTOM_CATEGORY_BY_ID: (id: string) => `/custom-categories/${id}`,
+
+  // Client Endpoints
+  CLIENTS: '/clients',
+  CLIENT_BY_ID: (id: string) => `/clients/${id}`,
+  CLIENT_CERTIFICATES: (id: string) => `/clients/${id}/certificates`,
+  CLIENT_IMPORT: '/clients/import',
+
+  // Certificate Endpoints
+  CERTIFICATES: '/certificates',
+  CERTIFICATE_BY_ID: (id: string) => `/certificates/${id}`,
+  CERTIFICATE_SUMMARY: (id: string) => `/certificates/${id}/summary`,
+  CERTIFICATE_FINALIZE: (id: string) => `/certificates/${id}/finalize`,
+  CERTIFICATE_REOPEN: (id: string) => `/certificates/${id}/reopen`,
+  CERTIFICATE_EXPORT_EXCEL: (id: string) => `/certificates/${id}/export/excel`,
+
+  // Annexure-1
+  CERTIFICATE_ANNEXURE1: (id: string) => `/certificates/${id}/annexure1`,
+  CERTIFICATE_ANNEXURE1_ROW: (id: string, section: string) => `/certificates/${id}/annexure1/${section}`,
+  CERTIFICATE_ANNEXURE1_ROW_ID: (id: string, section: string, rowId: string) => `/certificates/${id}/annexure1/${section}/${rowId}`,
+
+  // Annexure-2
+  CERTIFICATE_ANNEXURE2: (id: string) => `/certificates/${id}/annexure2`,
+  CERTIFICATE_ANNEXURE2_SECTION: (id: string, section: string) => `/certificates/${id}/annexure2/${section}`,
+
+  // Certificate Liabilities
+  CERTIFICATE_LIABILITIES: (id: string) => `/certificates/${id}/liabilities`,
+  CERTIFICATE_LIABILITY_ITEM: (id: string) => `/certificates/${id}/liabilities/item`,
+  CERTIFICATE_LIABILITY_ITEM_ID: (id: string, itemId: string) => `/certificates/${id}/liabilities/item/${itemId}`,
+
+  // Guarantors
+  CERTIFICATE_GUARANTORS: (id: string) => `/certificates/${id}/guarantors`,
+  CERTIFICATE_GUARANTOR_ITEM: (id: string) => `/certificates/${id}/guarantors/item`,
+  CERTIFICATE_GUARANTOR_ITEM_ID: (id: string, itemId: string) => `/certificates/${id}/guarantors/item/${itemId}`,
 } as const;
 

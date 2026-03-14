@@ -6,13 +6,19 @@ import { HomePage } from "../pages/HomePage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 
-import { AssetsPage } from "../pages/AssetsPage";
-import { AssetDetailPage } from "../pages/AssetDetailPage";
-import { LiabilitiesPage } from "../pages/LiabilitiesPage";
-import { LiabilityDetailPage } from "../pages/LiabilityDetailPage";
-import { CustomCategoriesPage } from "../pages/CustomCategoriesPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { Box, CircularProgress } from "@mui/material";
+
+// Net Worth Certificate pages
+import { ClientListPage } from "../pages/ClientListPage";
+import { ClientFormPage } from "../pages/ClientFormPage";
+import { ClientDetailPage } from "../pages/ClientDetailPage";
+import { CertificateOverviewPage } from "../pages/CertificateOverviewPage";
+import { Annexure1Page } from "../pages/Annexure1Page";
+import { Annexure2Page } from "../pages/Annexure2Page";
+import { CertificateLiabilityPage } from "../pages/CertificateLiabilityPage";
+import { GuarantorsPage } from "../pages/GuarantorsPage";
+import { SummaryPage } from "../pages/SummaryPage";
 
 // Auth routes - redirect to dashboard if already authenticated
 const authRoutes = [
@@ -23,12 +29,18 @@ const authRoutes = [
 // Protected routes - require authentication
 const protectedRoutes = [
   { path: "/dashboard", element: <HomePage /> },
-  { path: "/assets", element: <AssetsPage /> },
-  { path: "/assets/:id", element: <AssetDetailPage /> },
-  { path: "/liabilities", element: <LiabilitiesPage /> },
-  { path: "/liabilities/:id", element: <LiabilityDetailPage /> },
-  { path: "/custom-categories", element: <CustomCategoriesPage /> },
   { path: "/settings", element: <SettingsPage /> },
+  // Net Worth Certificate routes
+  { path: "/clients", element: <ClientListPage /> },
+  { path: "/clients/new", element: <ClientFormPage /> },
+  { path: "/clients/:id", element: <ClientDetailPage /> },
+  { path: "/clients/:id/edit", element: <ClientFormPage /> },
+  { path: "/certificates/:id", element: <CertificateOverviewPage /> },
+  { path: "/certificates/:id/annexure1", element: <Annexure1Page /> },
+  { path: "/certificates/:id/annexure2", element: <Annexure2Page /> },
+  { path: "/certificates/:id/liabilities", element: <CertificateLiabilityPage /> },
+  { path: "/certificates/:id/guarantors", element: <GuarantorsPage /> },
+  { path: "/certificates/:id/summary", element: <SummaryPage /> },
 ];
 
 export const AppRouter = () => {

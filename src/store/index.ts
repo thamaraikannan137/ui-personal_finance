@@ -3,15 +3,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { TypedUseSelectorHook } from 'react-redux';
 import userReducer from './slices/userSlice';
 import authReducer from './slices/authSlice';
-import assetReducer from './slices/assetSlice';
-import liabilityReducer from './slices/liabilitySlice';
+import clientReducer from './slices/clientSlice';
+import certificateReducer from './slices/certificateSlice';
+import annexure1Reducer from './slices/annexure1Slice';
+import annexure2Reducer from './slices/annexure2Slice';
+import guarantorReducer from './slices/guarantorSlice';
+
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
     auth: authReducer,
-    assets: assetReducer,
-    liabilities: liabilityReducer,
+    clients: clientReducer,
+    certificates: certificateReducer,
+    annexure1: annexure1Reducer,
+    annexure2: annexure2Reducer,
+    guarantors: guarantorReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

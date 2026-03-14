@@ -25,6 +25,7 @@ import {
   Savings,
   AccountBalance,
   Category,
+  PeopleAlt,
 } from '@mui/icons-material';
 
 // Hook Imports
@@ -46,6 +47,7 @@ const iconMap: { [key: string]: React.ReactNode } = {
   Savings: <Savings />,
   AccountBalance: <AccountBalance />,
   Category: <Category />,
+  PeopleAlt: <PeopleAlt />,
 };
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
@@ -127,7 +129,7 @@ export const Navigation: React.FC<NavigationProps> = ({ open = false, onClose })
             })
           }}
         >
-          React Dashboard
+          Net Worth Certificates
         </Typography>
         {!isBreakpointReached && (
           <Box sx={{ display: 'flex', gap: 1 }}>

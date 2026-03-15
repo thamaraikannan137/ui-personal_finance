@@ -1,4 +1,2 @@
-export * from './assets';
-export * from './liabilities';
-
+export * from './liabilities/CertificateLiabilityTable';
 

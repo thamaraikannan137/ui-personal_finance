@@ -19,9 +19,7 @@ export const HomePage = () => {
     dispatch(fetchClients({ page: 1, limit: 5 }));
   }, [dispatch]);
 
-  const totalCertificates = clients.reduce(
-    (sum, c) => sum + (c.certificates?.length ?? 0), 0
-  );
+  const totalCertificates = 0;
 
   return (
     <Stack spacing={4} sx={{ p: 1 }}>
